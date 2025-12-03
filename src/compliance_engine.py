@@ -1,18 +1,18 @@
 import json
 import os
-from openai import AzureOpenAI
-from config.settings import SYSTEM_PROMPT
+from openai import OpenAI
+from config.settings import SYSTEM_PROMPT, OPENAI_MODEL_NAME
 
 class ComplianceEngine:
     def __init__(self):
-        # Initialize Azure OpenAI Client
-        # Assumes env variables are set: AZURE_OPENAI_API_KEY, AZURE_OPENAI_ENDPOINT
-        self.client = AzureOpenAI(
-            api_key=os.getenv("AZURE_OPENAI_API_KEY"),
-            api_version=os.getenv("AZURE_OPENAI_API_VERSION", "2024-02-15-preview"),
-            azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT")
-        )
-        self.deployment = os.getenv("AZURE_OPENAI_DEPLOYMENT", "gpt-4o")
+        # Initialize Standard OpenAI Client
+        # It automatically looks for "OPENAI_API_KEY" in environment variables
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            raise ValueError("OPENAI_API_KEY not found in environment variables. Please check your .env file.")
+
+        self.client = OpenAI(api_key=api_key)
+        self.model = OPENAI_MODEL_NAME
 
     def evaluate_stipulation(self, stip_text, category, evidence_text):
         """
@@ -27,13 +27,12 @@ class ComplianceEngine:
         (Extracted Text Segment):
         {evidence_text[:15000]} 
         
-        (Note: Text limited to 15k chars for token optimization if massive definition)
+        (Note: Text limited to 15k chars for token optimization)
         """
-        # Note: In production, you'd want a token counter here to handle massive definition sections
         
         try:
             response = self.client.chat.completions.create(
-                model=self.deployment,
+                model=self.model,
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": user_message}

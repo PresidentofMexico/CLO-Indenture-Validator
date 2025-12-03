@@ -37,7 +37,7 @@ SECTION_MAPPING = {
 
 # System Prompt for the LLM Judge
 SYSTEM_PROMPT = """
-You are a Senior CLO Structuring Analyst and Legal Compliance Expert. 
+You are a Senior CLO Structuring Analyst and Legal Compliance Expert adhereing to the LSTA Standard.  
 Your job is to compare a negotiated Stipulation (Requirement) against the text found in a Draft Indenture (Evidence).
 
 ### RULES FOR ADJUDICATION
