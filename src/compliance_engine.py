@@ -18,18 +18,22 @@ class ComplianceEngine:
     AI-powered compliance checking engine using OpenAI's GPT models.
     """
     
-    def __init__(self, api_key: Optional[str] = None, model: str = "gpt-4", temperature: float = 0.1):
+    # Default model configuration
+    DEFAULT_MODEL = "gpt-4"
+    DEFAULT_TEMPERATURE = 0.1
+    
+    def __init__(self, api_key: Optional[str] = None, model: str = None, temperature: float = None):
         """
         Initialize the compliance engine.
         
         Args:
             api_key: OpenAI API key (if None, reads from environment)
-            model: OpenAI model to use
-            temperature: Temperature parameter for model (lower = more deterministic)
+            model: OpenAI model to use (defaults to DEFAULT_MODEL)
+            temperature: Temperature parameter for model (defaults to DEFAULT_TEMPERATURE)
         """
         self.api_key = api_key or os.getenv("OPENAI_API_KEY")
-        self.model = model
-        self.temperature = temperature
+        self.model = model or self.DEFAULT_MODEL
+        self.temperature = temperature if temperature is not None else self.DEFAULT_TEMPERATURE
         
         if not self.api_key:
             logger.warning("No OpenAI API key provided. Engine will run in mock mode.")

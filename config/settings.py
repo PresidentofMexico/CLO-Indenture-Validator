@@ -8,7 +8,7 @@ import re
 # Regex patterns for CLO document parsing
 REGEX_PATTERNS = {
     # Common CLO document patterns
-    'section_header': r'^(?:SECTION|Article)\s+(\d+(?:\.\d+)*)\s*[-–—]\s*(.+?)$',
+    'section_header': r'^(?:SECTION|Article)\s+(\d+(?:\.\d+)*)\s*[-\u2013\u2014]\s*(.+?)$',
     'covenant_trigger': r'(?:if|when|in the event that)\s+([^,]+?)\s+(?:exceeds?|falls? below|is less than|is greater than)\s+(\d+(?:\.\d+)?%?)',
     'percentage': r'(\d+(?:\.\d+)?)\s*%',
     'dollar_amount': r'\$\s*(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)',

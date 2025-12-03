@@ -20,6 +20,9 @@ class DocumentProcessor:
     Processes PDF documents and extracts relevant sections for compliance checking.
     """
     
+    # Configuration constants
+    DEFAULT_MAX_SECTION_LINES = 100  # Maximum lines to extract per section
+    
     def __init__(self, regex_patterns: Dict[str, str]):
         """
         Initialize the document processor.
@@ -105,17 +108,20 @@ class DocumentProcessor:
         
         return None
     
-    def _extract_until_next_section(self, lines: List[str], max_lines: int = 100) -> str:
+    def _extract_until_next_section(self, lines: List[str], max_lines: int = None) -> str:
         """
         Extract text until the next section header is found.
         
         Args:
             lines: Lines of text starting from current section
-            max_lines: Maximum number of lines to extract
+            max_lines: Maximum number of lines to extract (defaults to DEFAULT_MAX_SECTION_LINES)
             
         Returns:
             Section content
         """
+        if max_lines is None:
+            max_lines = self.DEFAULT_MAX_SECTION_LINES
+            
         content_lines = [lines[0]]  # Include the header
         pattern = self.compiled_patterns.get('section_header')
         
