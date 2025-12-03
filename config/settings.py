@@ -7,8 +7,8 @@ to specific sections of a standard CLO Indenture (LSTA Standard).
 import os
 
 # OpenAI Configuration
-OPENAI_API_VERSION = "2024-02-15-preview"
-OPENAI_DEPLOYMENT_NAME = "gpt-4o" # Ensure this matches your Azure deployment
+# Switched from Azure to Standard OpenAI
+OPENAI_MODEL_NAME = "gpt-4o" 
 
 # --- THE ROUTING LOGIC ---
 # This dictionary maps the "Category" from your Stips file to 
