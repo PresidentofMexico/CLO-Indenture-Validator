@@ -1,93 +1,59 @@
 """
-Centralized Regex Patterns and Configuration Settings
-The "CLO Logic" - Contains all regex patterns and compliance rules
+Configuration settings for the CLO Indenture Validator.
+This file contains the Regex patterns used to map Stipulation Categories 
+to specific sections of a standard CLO Indenture (LSTA Standard).
 """
 
-import re
+import os
 
-# Regex patterns for CLO document parsing
-REGEX_PATTERNS = {
-    # Common CLO document patterns
-    'section_header': r'^(?:SECTION|Article)\s+(\d+(?:\.\d+)*)\s*[-\u2013\u2014]\s*(.+?)$',
-    'covenant_trigger': r'(?:if|when|in the event that)\s+([^,]+?)\s+(?:exceeds?|falls? below|is less than|is greater than)\s+(\d+(?:\.\d+)?%?)',
-    'percentage': r'(\d+(?:\.\d+)?)\s*%',
-    'dollar_amount': r'\$\s*(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)',
-    'date_pattern': r'\b(\d{1,2}[-/]\d{1,2}[-/]\d{2,4}|\d{4}[-/]\d{1,2}[-/]\d{1,2})\b',
-    
-    # CLO-specific patterns
-    'oc_ratio': r'(?:overcollateralization|o/c)\s+(?:ratio|test)\s*(?:of)?\s*(\d+(?:\.\d+)?%?)',
-    'ic_ratio': r'(?:interest coverage|i/c)\s+(?:ratio|test)\s*(?:of)?\s*(\d+(?:\.\d+)?%?)',
-    'concentration_limit': r'concentration\s+limit\s*(?:of)?\s*(\d+(?:\.\d+)?%?)',
-    'rating_threshold': r'(?:rated|rating)\s+(?:of\s+)?([A-Z][a-z]*[-+]?)',
+# OpenAI Configuration
+OPENAI_API_VERSION = "2024-02-15-preview"
+OPENAI_DEPLOYMENT_NAME = "gpt-4o" # Ensure this matches your Azure deployment
+
+# --- THE ROUTING LOGIC ---
+# This dictionary maps the "Category" from your Stips file to 
+# Regex patterns likely to be found in the Indenture TOC or Headers.
+
+SECTION_MAPPING = {
+    "Concentration Limitations": {
+        "primary_keywords": ["Concentration Limitations", "Section 7.3"],
+        # Looks for text strictly between Section 7.3 and 7.4 to avoid noise
+        "regex_pattern": r"(Section\s+7\.3|Concentration\s+Limitations)([\s\S]*?)(Section\s+7\.4)"
+    },
+    "Required Definitions": {
+        "primary_keywords": ["Definitions", "Article I", "Article 1"],
+        # Captures the entire definitions section (usually massive)
+        "regex_pattern": r"(Article\s+I|DEFINITIONS)([\s\S]*?)(Article\s+II|Article\s+2)"
+    },
+    "Required Workout/Restructured Obligations": {
+        "primary_keywords": ["Sale of Collateral", "Article XII", "Article 12"],
+        "regex_pattern": r"(Article\s+XII|Sale\s+of\s+Collateral)([\s\S]*?)(Article\s+XIII)"
+    },
+    "General": {
+        # Fallback if no specific section is found
+        "regex_pattern": None 
+    }
 }
 
-# Compliance thresholds
-COMPLIANCE_THRESHOLDS = {
-    'min_oc_ratio': 100.0,  # Minimum overcollateralization ratio (%)
-    'min_ic_ratio': 100.0,  # Minimum interest coverage ratio (%)
-    'max_concentration': 10.0,  # Maximum single asset concentration (%)
-    'min_rating': 'BBB-',  # Minimum acceptable rating
+# System Prompt for the LLM Judge
+SYSTEM_PROMPT = """
+You are a Senior CLO Structuring Analyst and Legal Compliance Expert. 
+Your job is to compare a negotiated Stipulation (Requirement) against the text found in a Draft Indenture (Evidence).
+
+### RULES FOR ADJUDICATION
+1. **Numeric Limits:** - Stip: "Max 7.5%". Evidence: "Max 7.5%". -> STATUS: PASS
+   - Stip: "Max 7.5%". Evidence: "Max 10%". -> STATUS: FAIL (Higher risk allowed).
+   - Stip: "Max 7.5%". Evidence: "Max 5%". -> STATUS: PASS (Stricter is acceptable).
+
+2. **Negative Constraints ("No Carveouts"):** - If Stip says "Require NO carveouts", and Evidence has "provided that..." or "except for...", -> STATUS: FAIL.
+
+3. **Silence/Missing:** - If Stip requires a clause and Evidence is silent -> STATUS: FAIL.
+
+### OUTPUT FORMAT (JSON ONLY)
+{
+  "status": "PASS" | "FAIL" | "AMBIGUOUS",
+  "evidence_quote": "The exact string from the indenture text supporting your decision.",
+  "reasoning": "A concise explanation of why it passed or failed.",
+  "discrepancy_details": "If FAIL, explicitly state the difference."
 }
-
-# Document sections to extract
-DOCUMENT_SECTIONS = [
-    'Definitions',
-    'Covenants',
-    'Events of Default',
-    'Collateral',
-    'Payment Priority',
-    'Coverage Tests',
-    'Concentration Limits',
-    'Rating Requirements',
-]
-
-# LLM prompt templates
-PROMPT_TEMPLATES = {
-    'compliance_check': """
-You are a CLO compliance expert. Analyze the following document section and determine if it complies with the given rule.
-
-Document Section:
-{document_section}
-
-Rule/Stipulation:
-{rule}
-
-Please provide:
-1. Compliance Status: PASS/FAIL/UNCLEAR
-2. Explanation: Brief reasoning for your determination
-3. Relevant Excerpts: Quote specific text from the document that supports your conclusion
-""",
-    
-    'covenant_extraction': """
-Extract all financial covenants and their thresholds from the following text:
-
-{text}
-
-Format your response as:
-- Covenant Name: [name]
-  Threshold: [value]
-  Condition: [trigger condition]
-""",
-}
-
-# API Configuration
-API_CONFIG = {
-    'model': 'gpt-4',
-    'temperature': 0.1,  # Lower temperature for more consistent compliance checking
-    'max_tokens': 2000,
-}
-
-# File paths
-DEFAULT_PATHS = {
-    'input_dir': 'input/',
-    'output_dir': 'output/',
-    'stips_file': 'input/stips.xlsx',
-    'report_output': 'output/compliance_report.xlsx',
-}
-
-# Logging configuration
-LOG_CONFIG = {
-    'level': 'INFO',
-    'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    'date_format': '%Y-%m-%d %H:%M:%S',
-}
+"""
