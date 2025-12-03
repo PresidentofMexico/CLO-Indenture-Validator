@@ -8,28 +8,49 @@ from src.compliance_engine import ComplianceEngine
 load_dotenv()
 
 def main():
-    # --- INPUT CONFIGURATION ---
-    # In a real app, these would come from the UI/CLI args
-    PDF_PATH = "input/Draft_Indenture_v3.pdf"
-    STIPS_PATH = "input/structured_stips.csv" # Pre-processed stips
-    START_PAGE = 146
-    END_PAGE = 385
+    # --- CONFIGURATION ---
+    # 1. Filename Configuration
+    PDF_FILENAME = "Elmwood CLO 19 Second Reset - Final Offering Circular (as printed 10.03.25).pdf"
+    STIPS_CSV_FILENAME = "structured_stips.csv"
     
-    # 1. Initialize Components
+    # 2. PAGE RANGE (Update this manually!)
+    # Open your PDF, find the "Indenture" section, and enter the start/end pages.
+    START_PAGE = 1   
+    END_PAGE = 100   
+
+    # Derived Paths
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    PDF_PATH = os.path.join(BASE_DIR, "input", PDF_FILENAME)
+    
+    # UPDATED: Points to the CSV in the 'input' folder now
+    STIPS_CSV_PATH = os.path.join(BASE_DIR, "input", STIPS_CSV_FILENAME)
+    
+    # --- EXECUTION ---
+    print("--- CLO INDENTURE VALIDATOR STARTING ---")
+
+    # 1. Initialize Engine
     if not os.path.exists(PDF_PATH):
-        print(f"Error: File {PDF_PATH} not found. Please place a dummy PDF in input folder.")
+        print(f"Error: PDF not found at {PDF_PATH}")
+        print("Please check the filename in the 'input' folder.")
         return
 
     processor = DocumentProcessor(PDF_PATH)
     engine = ComplianceEngine()
     
-    # 2. Load and Slice PDF (The "Associate" Step)
-    processor.load_and_slice(START_PAGE, END_PAGE)
-    
-    # 3. Load Stipulations
-    # We assume columns: [Category, Requirement]
+    # 2. Load and Slice PDF
     try:
-        stips_df = pd.read_csv(STIPS_PATH)
+        processor.load_and_slice(START_PAGE, END_PAGE)
+    except Exception as e:
+        print(f"Error reading PDF: {e}")
+        return
+    
+    # 3. Load Stipulations (Directly from CSV)
+    if not os.path.exists(STIPS_CSV_PATH):
+        print(f"Error: Stips CSV not found at {STIPS_CSV_PATH}")
+        return
+
+    try:
+        stips_df = pd.read_csv(STIPS_CSV_PATH)
         print(f"Loaded {len(stips_df)} stipulations to check.")
     except Exception as e:
         print(f"Could not load stips CSV: {e}")
@@ -38,11 +59,17 @@ def main():
     results = []
 
     # 4. The Analysis Loop
+    print("\n--- BEGINNING ANALYSIS ---\n")
     for index, row in stips_df.iterrows():
-        category = row['Category']
-        requirement = row['Requirement']
+        # Flexible column names in case your CSV headers vary
+        category = row.get('Category') or row.get('category')
+        requirement = row.get('Requirement') or row.get('requirement') or row.get('Description')
         
-        print(f"\nProcessing Stip {index+1}: [{category}] {requirement[:30]}...")
+        if not category or not requirement:
+            print(f"Skipping Row {index}: Missing 'Category' or 'Requirement' column.")
+            continue
+            
+        print(f"Checking Stip {index+1}/{len(stips_df)}: [{category}]")
         
         # A. Route to relevant text
         relevant_text = processor.extract_section_by_category(category)
@@ -51,18 +78,19 @@ def main():
         verdict = engine.evaluate_stipulation(requirement, category, relevant_text)
         
         # C. Store Result
+        print(f"  -> Verdict: {verdict.get('status')}")
         results.append({
-            "Stipulation": requirement,
             "Category": category,
+            "Stipulation": requirement,
             "Status": verdict.get("status"),
-            "Discrepancy Details": verdict.get("discrepancy_details"),
+            "Evidence Quote": verdict.get("evidence_quote"),
             "Reasoning": verdict.get("reasoning"),
-            "Evidence": verdict.get("evidence_quote")
+            "Discrepancy Details": verdict.get("discrepancy_details")
         })
 
     # 5. Generate Report
     results_df = pd.DataFrame(results)
-    output_path = "output/Compliance_Matrix.csv"
+    output_path = os.path.join(BASE_DIR, "output", "Compliance_Matrix.csv")
     results_df.to_csv(output_path, index=False)
     print(f"\nJob Complete. Report generated at: {output_path}")
 

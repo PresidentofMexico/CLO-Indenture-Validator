@@ -1,0 +1,31 @@
+Section,Section Name,Item Number,Requirement
+A,Concentration Limitations,1,"7.5% concentration limit for Moody's Caa, Excess Caa, S&P CCC, Excess CCC"
+A,Concentration Limitations,2,"2.5% concentration limit for each of the top 5 obligors, 1.5% limit for non-senior secured"
+A,Concentration Limitations,3,60% concentration limit for Cov-lite loans
+A,Concentration Limitations,4,"5% concentration limit for obligors with total indebtedness below $250,000,000 and above $150,000,000"
+A,Concentration Limitations,5,0% concentration limit for Long Dated Obligations
+A,Concentration Limitations,6,2.5% concentration limit for Bridge Loans
+A,Concentration Limitations,7,5% concentration limit for Permitted Non-Loan Assets and Fixed Rate Obligations
+A,Concentration Limitations,8,10% limit for Delayed Drawdown/Revolving collateral obligations
+A,Concentration Limitations,9,More than 90% of the collateral obligations are Senior secured loans
+A,Concentration Limitations,10,10% limit for Participation interest
+A,Concentration Limitations,11,5% limit for Deferrable obligations
+A,Concentration Limitations,12,7.5% limit for DIP obligations
+A,Concentration Limitations,13,"SP industry: not more than 10% of the Collateral Principal Amount may consist of Collateral Obligations that are issued by Obligors that belong to any single S&P Industry Classification, except that up to two S&P Industry Classifications may each represent up to 12%, and one other S&P Industry Classification may represent up to 15%, of the Collateral Principal Amount"
+A,Concentration Limitations,14,5% limit for Current pay obligations
+A,Concentration Limitations,15,5% limit for Payment less frequent than quarterly
+A,Concentration Limitations,16,20% limit for Discount obligations
+B,Required Post Reinvestment Language,17,Require post-reinvestment purchases have a maturity that is equal to or shorter than the stated maturity of the prepaid/sold obligation
+B,Required Post Reinvestment Language,18,Require each Overcollateralization Test is satisfied after giving effect to each reinvestment
+B,Required Post Reinvestment Language,19,"Require Post-Reinvestment Proceeds must be reinvested with the later to occur of (i) 45 days after receipt and (ii) the second determination date to occur after receipt of proceeds"
+C,Required Supplemental Indenture,20,"Require Consent of the Majority of the Controlling Class to change Collateral Quality Tests, Concentration Limits, Provisions and Definitions"
+D,Required Definitions,21,"Require there are no carveouts within the definition of CCC Excess (for example, up to 2% CCCs trading above par)"
+D,Required Definitions,22,Require there are no carveouts within the definition of Discount Obligations (such as for CCC Collateral Obligations)
+D,Required Definitions,23,"Require a minimum total indebtedness of $150,000,000 for small obligors, with no allowance for exposure to small obligors"
+E,Other Requirements,24,Require Distressed Exchange are limited to be 5% at any point in time and 20% cumulatively
+E,Other Requirements,25,Require First Lien Last Out to be treated as second lien loans
+E,Other Requirements,26,Require a Minimum Price for purchases at 50% with a 5% allowance between 50% and 60%
+E,Other Requirements,27,Require the Trading Plan allowance to be 5% with no carve out for Credit Risk sales
+E,Other Requirements,28,"Require maturity anti-bar bell restrictions in the Trading Plan: minimum maturity of 6 months, maximum difference of 3 years in average life between the shortest and longest obligations"
+F,Required Workout/Restructured Obligations,29,"Require that sale proceeds from selling a workout asset must be counted as principal up to the balance of the defaulted asset that led to the purchase of the workout asset, with no distinction made if principal or interest is used to purchase the workout asset."
+F,Required Workout/Restructured Obligations,30,Require that interest can only be used to purchase a workout asset if there is sufficient interest to pay all accrued and unpaid interest on all classes of notes
