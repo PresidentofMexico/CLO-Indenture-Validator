@@ -108,7 +108,7 @@ class DocumentProcessor:
         
         return None
     
-    def _extract_until_next_section(self, lines: List[str], max_lines: int = None) -> str:
+    def _extract_until_next_section(self, lines: List[str], max_lines: Optional[int] = None) -> str:
         """
         Extract text until the next section header is found.
         
