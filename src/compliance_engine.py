@@ -8,7 +8,7 @@ from typing import Dict, List, Optional, Tuple
 import logging
 
 # Note: This import would be used when openai is installed
-# import openai
+# from openai import OpenAI
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +35,7 @@ class ComplianceEngine:
             logger.warning("No OpenAI API key provided. Engine will run in mock mode.")
         
         # In production, initialize the OpenAI client:
-        # openai.api_key = self.api_key
+        # self.client = OpenAI(api_key=self.api_key)
     
     def check_compliance(
         self, 
@@ -91,8 +91,8 @@ Relevant Excerpts: [Mock excerpt from document]
 """
         
         try:
-            # In production, use the OpenAI API:
-            # response = openai.ChatCompletion.create(
+            # In production, use the OpenAI API (v1.0+):
+            # response = self.client.chat.completions.create(
             #     model=self.model,
             #     messages=[
             #         {"role": "system", "content": "You are a CLO compliance expert."},
